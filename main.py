@@ -1,8 +1,22 @@
 from tkinter import *
 from tkinter import messagebox
 import random
-import pyclip
 import json
+import sys
+import os
+
+
+# ---------------------------- UTIl FUNCTION  ------------------------------- #
+
+def resolve_path(path):
+    if getattr(sys, "frozen", False):
+        # If the 'frozen' flag is set, we are in bundled-app mode!
+        resolved_path = os.path.abspath(os.path.join(sys._MEIPASS, path))
+    else:
+        # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
+        resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+    return resolved_path
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -29,7 +43,6 @@ def generate_password():
 
     gen_password = ''.join(password_list)
     pass_input.insert(0, gen_password)
-    pyclip.copy(gen_password)
 
 
 # ---------------------------- SEARCH FUNCTION ------------------------------- #
@@ -98,7 +111,7 @@ window.config(padx=50, pady=50)
 
 # Canvas
 canvas = Canvas(width=200, height=200)
-logo_img = PhotoImage(file="./images/logo.png")
+logo_img = PhotoImage(file=resolve_path("logo.png"))
 canvas.create_image(100, 100, image=logo_img)
 canvas.grid(row=0, column=2)
 
