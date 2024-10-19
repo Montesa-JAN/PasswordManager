@@ -8,8 +8,8 @@ from main_frame import MainFrame
 class PasswordManager(ctk.CTk):
     mode = "dark"
     ctk.set_appearance_mode(mode)
-    WIDTH = 1000
-    HEIGHT = 700
+    WIDTH = 1200
+    HEIGHT = 900
 
     def __init__(self):
         super().__init__()
