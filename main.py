@@ -34,6 +34,7 @@ class PasswordManager(ctk.CTk):
         # Window Content
         self.password_frame = PasswordListFrame(self, "Passwords")
         self.password_frame.grid(row=0, column=0, padx=10, pady=10, sticky="news")
+        self.password_frame.load_to_treeview()
 
         self.main_frame = MainFrame(self, "Password Manager", self.password_frame)
         self.main_frame.grid(row=0, column=1, padx=10, pady=10, sticky="news")

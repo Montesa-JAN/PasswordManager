@@ -5,11 +5,11 @@ from CTkMessagebox import CTkMessagebox
 
 
 class MainFrame(ctk.CTkFrame):
-    def __init__(self, master, title, table_view):
+    def __init__(self, master, title, tree):
         font = ("BEBAS", 20)
         super().__init__(master)
 
-        self.table_view = table_view
+        self.tree = tree
 
         self.title = title
         self.grid_rowconfigure((0, 7), weight=1)
@@ -24,7 +24,7 @@ class MainFrame(ctk.CTkFrame):
         self.web_input.grid(row=1, column=1, padx=10, pady=10, sticky="new")
         self.web_input.focus_set()
 
-        self.email_label = ctk.CTkLabel(self, text="Email/Username:", font=font)
+        self.email_label = ctk.CTkLabel(self, text="Email:", font=font)
         self.email_label.grid(row=3, column=0, padx=10, pady=10, sticky="new")
 
         self.email_input = ctk.CTkEntry(self, width=300, height=40, corner_radius=10)
@@ -78,7 +78,7 @@ class MainFrame(ctk.CTkFrame):
         self.email_input.delete(0, 'end')
         self.password_input.delete(0, 'end')
 
-        self.table_view.insert_data(new_data)
+        self.tree.insert_data(new_data)
 
     # Random Password Generator
     def genpassw(self):
