@@ -115,7 +115,7 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
                     self.treeview.see(item_id)
                     found = True
                     break
-        if not found:
+        elif not found:
             CTkMessagebox(title="No match", message="No match found, are you sure this account exists?")
 
     # Get data from treeview
