@@ -18,9 +18,15 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
         self.title_text = ctk.CTkLabel(self, text=self.title, font=font)
         self.title_text.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="new")
 
+        # Treeview Widget
         self.treeview = Treeview(self, show="headings", columns=self.cols, height=30)
+        self.treeview["columns"] = ("Website", "Email", "Password")
+        self.treeview.column('Website', width=150, anchor='w')
+        self.treeview.column('Email', width=200, anchor='w')
+        self.treeview.column('Password', width=200, anchor='w')
+
         self.treeview.heading('Website', text='Website')
-        self.treeview.heading('Email/Username', text='Email/Username')
+        self.treeview.heading('Email', text='Email')
         self.treeview.heading('Password', text='Password')
         self.treeview.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="news")
 
@@ -43,10 +49,11 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
                                         font=font, command=self.delete_row)
         self.delete_btn.grid(row=4, column=0, padx=10, pady=10, sticky="sw")
 
-        self.data = self.load_data()
+        self.data = self.load_data_from_json()
 
     # Deletes row in tree view
     def delete_row(self):
+        data = self.load_data_from_json()
         selected_item = self.treeview.selection()
 
         if not selected_item:
@@ -56,31 +63,39 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
         item_id = selected_item[0]
         website = self.treeview.item(item_id, "values")[0]
 
-        if website not in self.data:
+        if website not in data:
             return
 
         self.treeview.delete(item_id)
 
-        del self.data[website]
+        del data[website]
 
         with open("data.json", "w") as data_file:
-            json.dump(self.data, data_file, indent=4)
+            json.dump(data, data_file, indent=4)
 
-    # Reads and loads all data from JSON file to TreeView
-    def load_data(self):
+    # Loads data from JSON and returns data
+    @staticmethod
+    def load_data_from_json():
         try:
             with open("data.json", "r") as data_file:
                 data = json.load(data_file)
-                for idx, (website, details) in enumerate(data.items(), start=1):
-                    self.treeview.insert('', 'end', values=(website, details["email"], details["password"]))
+            return data
         except FileNotFoundError:
             with open("data.json", "w") as data_file:
                 json.dump({}, data_file)
+            return {}
         except json.JSONDecodeError:
             CTkMessagebox(title="Corrupt File", message="Sorry the file seems to be corrupted")
-        return data
+            return None
 
-    # Inserts data into TreeView from user
+    def load_to_treeview(self):
+        data = self.load_data_from_json()
+        if data:
+            for website, value in data.items():
+                email = value.get("email", "N/A")
+                password = value.get("password", "N/A")
+                self.treeview.insert('', 'end', values=(website, email, password))
+
     def insert_data(self, data):
         for website, details in data.items():
             self.treeview.insert('', 'end', values=(website, details["email"], details["password"]))
@@ -92,16 +107,15 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
 
         if not search:
             CTkMessagebox(title="Empty field", message="Please type something in the search field")
-
-        for item_id, values in data.items():
-            if any(search.lower() in str(value).lower() for value in values):
-                self.treeview.focus(item_id)
-                self.treeview.selection_set(item_id)
-                self.treeview.see(item_id)
-                found = True
-                break
-
-        if not found:
+        elif search:
+            for item_id, values in data.items():
+                if any(search.lower() in str(value).lower() for value in values):
+                    self.treeview.focus(item_id)
+                    self.treeview.selection_set(item_id)
+                    self.treeview.see(item_id)
+                    found = True
+                    break
+        elif not found:
             CTkMessagebox(title="No match", message="No match found, are you sure this account exists?")
 
     # Get data from treeview

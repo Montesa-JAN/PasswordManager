@@ -1,15 +1,16 @@
 import customtkinter as ctk
-import random
+import secrets
+import string
 import json
 from CTkMessagebox import CTkMessagebox
 
 
 class MainFrame(ctk.CTkFrame):
-    def __init__(self, master, title, table_view):
+    def __init__(self, master, title, tree):
         font = ("BEBAS", 20)
         super().__init__(master)
 
-        self.table_view = table_view
+        self.tree = tree
 
         self.title = title
         self.grid_rowconfigure((0, 7), weight=1)
@@ -24,7 +25,7 @@ class MainFrame(ctk.CTkFrame):
         self.web_input.grid(row=1, column=1, padx=10, pady=10, sticky="new")
         self.web_input.focus_set()
 
-        self.email_label = ctk.CTkLabel(self, text="Email/Username:", font=font)
+        self.email_label = ctk.CTkLabel(self, text="Email:", font=font)
         self.email_label.grid(row=3, column=0, padx=10, pady=10, sticky="new")
 
         self.email_input = ctk.CTkEntry(self, width=300, height=40, corner_radius=10)
@@ -78,31 +79,18 @@ class MainFrame(ctk.CTkFrame):
         self.email_input.delete(0, 'end')
         self.password_input.delete(0, 'end')
 
-        self.table_view.insert_data(new_data)
+        self.tree.insert_data(new_data)
 
     # Random Password Generator
     def genpassw(self):
-        letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-                   'u',
-                   'v',
-                   'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-                   'Q',
-                   'R',
-                   'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-        numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-        symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
+        length = 16
+        digits = ''.join(secrets.choice(string.digits) for _ in range(3))
+        uppercase = secrets.choice(string.ascii_uppercase)
+        symbols = ''.join(secrets.choice(string.punctuation) for _ in range(3))
 
-        nr_letters = random.randint(8, 10)
-        nr_symbols = random.randint(2, 4)
-        nr_numbers = random.randint(2, 4)
+        remaining_length = length - (3 + 1 + 3)
+        remaining_chars = ''.join(secrets.choice(string.ascii_letters + string.digits + symbols) for _ in range(remaining_length))
 
-        p_letter = [random.choice(letters) for _ in range(nr_letters)]
-        p_symbols = [random.choice(symbols) for _ in range(nr_symbols)]
-        p_numbers = [random.choice(numbers) for _ in range(nr_numbers)]
-
-        password_list = p_letter + p_numbers + p_symbols
-
-        random.shuffle(password_list)
-
-        gen_password = ''.join(password_list)
-        self.password_input.insert(0, gen_password)
+        password = list(digits + uppercase + symbols + remaining_chars)
+        secrets.SystemRandom().shuffle(password)
+        self.password_input.insert(0, ''.join(password))

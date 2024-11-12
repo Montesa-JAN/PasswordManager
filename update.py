@@ -1,6 +1,5 @@
 import customtkinter as ctk
 import json
-from CTkMessagebox import CTkMessagebox
 
 
 class UpdateWindow(ctk.CTkToplevel):
@@ -9,8 +8,8 @@ class UpdateWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.tree = tree
         self.row_index = row_index
-        self.data = data
         self.item_values = item_values
+        self.data = data
 
         self.geometry("500x300")
         self.title("Update Window")
@@ -45,10 +44,6 @@ class UpdateWindow(ctk.CTkToplevel):
         new_email = self.email_entry.get().strip()
         new_password = self.password_entry.get().strip()
 
-        if not new_email or new_password:
-            self.show_error_message(message="Please don't leave empty fields")
-            return
-
         if selected_website not in self.data:
             return
 
@@ -62,10 +57,6 @@ class UpdateWindow(ctk.CTkToplevel):
 
         self.refresh_ui()
         self.destroy()
-
-    @staticmethod
-    def show_error_message(message):
-        CTkMessagebox(title="Error", message=message)
 
     def refresh_ui(self):
         self.tree.delete(*self.tree.get_children())

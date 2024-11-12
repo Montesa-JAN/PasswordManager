@@ -2,4 +2,5 @@
 *.cache
 *.txt
 *.html
-*.idea
+*.idea/
+*.bat
