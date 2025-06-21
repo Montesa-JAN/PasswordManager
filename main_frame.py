@@ -51,11 +51,9 @@ class MainFrame(ctk.CTkFrame):
         email = self.email_input.get()
         passw = self.password_input.get()
 
-        new_data = {
-            website: {
-                "email": email,
-                "password": passw
-            }
+        new_entry = {
+            "email": email,
+            "password": passw
         }
 
         if not website or not passw:
@@ -68,18 +66,23 @@ class MainFrame(ctk.CTkFrame):
         except FileNotFoundError:
             data = {}
 
-        data.update(new_data)
+        # Ensure website key is a list, and append only if not duplicate
+        if website in data:
+            # Prevent exact duplicates
+            if new_entry not in data[website]:
+                data[website].append(new_entry)
+        else:
+            data[website] = [new_entry]
 
         with open(file="data.json", mode="w") as data_file:
             json.dump(data, data_file, indent=4)
-            data_file.close()
 
         self.web_input.delete(0, 'end')
         self.web_input.focus_set()
         self.email_input.delete(0, 'end')
         self.password_input.delete(0, 'end')
 
-        self.tree.insert_data(new_data)
+        self.tree.insert_data({website: [new_entry]})
 
     # Random Password Generator
     def genpassw(self):

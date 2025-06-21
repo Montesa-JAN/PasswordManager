@@ -18,14 +18,9 @@ class UpdateWindow(ctk.CTkToplevel):
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # Inputs and labels
-        self.email_label = ctk.CTkLabel(self, text="Email", font=font)
         self.password_label = ctk.CTkLabel(self, text="Password", font=font)
 
-        self.email_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
         self.password_label.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
-
-        self.email_entry = ctk.CTkEntry(self, width=300, height=40, corner_radius=10)
-        self.email_entry.grid(row=2, column=1, padx=10, pady=10, sticky="ne")
 
         self.password_entry = ctk.CTkEntry(self, width=300, height=40, corner_radius=10)
         self.password_entry.grid(row=3, column=1, padx=10, pady=10, sticky="ne")
@@ -41,14 +36,10 @@ class UpdateWindow(ctk.CTkToplevel):
     def save_changes(self):
         selected_website = self.item_values[0]
 
-        new_email = self.email_entry.get().strip()
         new_password = self.password_entry.get().strip()
 
         if selected_website not in self.data:
             return
-
-        if new_email:
-            self.data[selected_website]["email"] = new_email
         if new_password:
             self.data[selected_website]["password"] = new_password
 
@@ -62,4 +53,4 @@ class UpdateWindow(ctk.CTkToplevel):
         self.tree.delete(*self.tree.get_children())
 
         for website, credentials in self.data.items():
-            self.tree.insert('', 'end', values=(website, credentials["email"], credentials["password"]))
+            self.tree.insert('', 'end', values=(website, credentials["password"]))

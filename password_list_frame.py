@@ -74,14 +74,19 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
             return
 
         item_id = selected_item[0]
-        website = self.treeview.item(item_id, "values")[0]
+        values = self.treeview.item(item_id, "values")
+        website, email, password = values
 
         if website not in data:
             return
 
-        self.treeview.delete(item_id)
+        # Remove the specific entry from the list
+        data[website] = [entry for entry in data[website] if not (entry["email"] == email and entry["password"] == password)]
+        # If no entries left for this website, remove the key
+        if not data[website]:
+            del data[website]
 
-        del data[website]
+        self.treeview.delete(item_id)
 
         with open("data.json", "w") as data_file:
             json.dump(data, data_file, indent=4)
