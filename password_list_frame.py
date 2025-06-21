@@ -77,14 +77,12 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
         values = self.treeview.item(item_id, "values")
         website, email, password = values
 
-        if website not in data:
-            return
-
         # Remove the specific entry from the list
-        data[website] = [entry for entry in data[website] if not (entry["email"] == email and entry["password"] == password)]
-        # If no entries left for this website, remove the key
-        if not data[website]:
-            del data[website]
+        data = [entry for entry in data if not (
+            entry.get("website") == website and
+            entry.get("email") == email and
+            entry.get("password") == password
+        )]
 
         self.treeview.delete(item_id)
 
@@ -97,44 +95,47 @@ class PasswordListFrame(ctk.CTkScrollableFrame):
         try:
             with open("data.json", "r") as data_file:
                 data = json.load(data_file)
+                if not isinstance(data, list):
+                    data = []
             return data
-        except FileNotFoundError:
-            with open("data.json", "w") as data_file:
-                json.dump({}, data_file)
-            return {}
-        except json.JSONDecodeError:
-            CTkMessagebox(title="Corrupt File", message="Sorry the file seems to be corrupted")
-            return None
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
 
     def load_to_treeview(self):
         data = self.load_data_from_json()
         if data:
-            for website, value in data.items():
-                email = value.get("email", "N/A")
-                password = value.get("password", "N/A")
+            for entry in data:
+                website = entry.get("website", "N/A")
+                email = entry.get("email", "N/A")
+                password = entry.get("password", "N/A")
                 self.treeview.insert('', 'end', values=(website, email, password))
 
-    def insert_data(self, data):
-        for website, details in data.items():
-            self.treeview.insert('', 'end', values=(website, details["email"], details["password"]))
+    def insert_data(self, entries):
+        for entry in entries:
+            website = entry.get("website", "N/A")
+            email = entry.get("email", "N/A")
+            password = entry.get("password", "N/A")
+            self.treeview.insert('', 'end', values=(website, email, password))
 
     # Searches treeview data
     def search_data(self, data):
-        search = self.search_entry.get().strip()
+        search = self.search_entry.get().strip().lower()
         found = False
 
         if not search:
             CTkMessagebox(title="Empty field", message="Please type something in the search field")
-        elif search:
-            for item_id, values in data.items():
-                if any(search.lower() in str(value).lower() for value in values):
-                    self.treeview.focus(item_id)
-                    self.treeview.selection_set(item_id)
-                    self.treeview.see(item_id)
-                    found = True
-                    break
-        elif not found:
-            CTkMessagebox(title="No match", message="No match found, are you sure this account exists?")
+            return
+        
+        for item_id in self.treeview.get_children():
+            values = self.treeview.item(item_id, "values")
+            if any(search in str(value).lower() for value in values):
+                self.treeview.focus(item_id)
+                self.treeview.selection_set(item_id)
+                self.treeview.see(item_id)
+                found = True
+                break
+        if not found:
+            CTkMessagebox(title="Not Found", message=f"No results found for '{search}'")
 
     # Get data from treeview
     def get_treeview_data(self):

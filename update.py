@@ -34,14 +34,19 @@ class UpdateWindow(ctk.CTkToplevel):
         self.destroy()
 
     def save_changes(self):
-        selected_website = self.item_values[0]
-
+        website, email, old_password = self.item_values
         new_password = self.password_entry.get().strip()
 
-        if selected_website not in self.data:
+        if not new_password:
             return
-        if new_password:
-            self.data[selected_website]["password"] = new_password
+
+        # Find and update the correct entry in the list
+        for entry in self.data:
+            if (entry.get("website") == website and
+                entry.get("email") == email and
+                entry.get("password") == old_password):
+                entry["password"] = new_password
+                break
 
         with open("data.json", "w") as data_file:
             json.dump(self.data, data_file, indent=4)
@@ -51,6 +56,8 @@ class UpdateWindow(ctk.CTkToplevel):
 
     def refresh_ui(self):
         self.tree.delete(*self.tree.get_children())
-
-        for website, credentials in self.data.items():
-            self.tree.insert('', 'end', values=(website, credentials["password"]))
+        for entry in self.data:
+            website = entry.get("website", "N/A")
+            email = entry.get("email", "N/A")
+            password = entry.get("password", "N/A")
+            self.tree.insert('', 'end', values=(website, email, password))
